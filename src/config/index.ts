@@ -1,4 +1,9 @@
-export default {
+interface Config {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
+
+const config: Config = {
   site: {
     title: 'Axmine',
     favicon: '',
@@ -32,3 +37,4 @@ export default {
     }
   }
 }
+export default config

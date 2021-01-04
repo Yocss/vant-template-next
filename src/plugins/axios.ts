@@ -1,12 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios'
 import Qs from 'qs'
 import config from '@/config/index'
 const { httpRequest } = config
-
+const { times } = httpRequest
+interface Result {
+  code: number;
+  result: any;
+  message: string;
+}
 class Axios {
   private axios
+  private times
 
   constructor () {
+    this.times = times
     this.axios = axios.create({
       timeout: 10000, // 10s超时
       transformRequest: [(data) => { return Qs.stringify(data) }]
@@ -53,10 +61,10 @@ class Axios {
       const { errorMessage } = httpRequest
       let code = 504
       let message = errorMessage[code]
-      const data = { code, result: {}, message }
+      const data = { code, message, result: {} }
       if (response) {
         code = response.status || 500
-        // message = errorMessage[code]
+        message = errorMessage[code] || message
       } else {
         Object.assign(data, { result: error.message || {} })
       }
@@ -64,7 +72,24 @@ class Axios {
       return Promise.reject(data)
     })
   }
+
+  // 执行请求
+  private async request (api: string, json: any, config: any, times = this.times): Promise<any> {
+    console.log(times)
+    const resultData: Result = { code: 0, result: {}, message: 'ok' }
+    const conf = Object.assign({ method: 'post', option: {} }, config)
+    const url = api.indexOf('/') === 0 ? api.slice(1) : api
+    try {
+      const method = conf.method !== 'post' ? 'get' : 'post'
+      const data = { post: { data: json }, get: { params: json } }[method]
+      const result = await this.axios({ url, method, ...conf.option, ...data })
+      return result
+    } catch (err) {
+      console.log(err)
+    }
+    return resultData
+  }
 }
 
-const a = new Axios()
-console.log(a)
+const http = new Axios()
+export default http
