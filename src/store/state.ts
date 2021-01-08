@@ -1,5 +1,8 @@
 export default {
   layout: 'default',
   transition: '',
-  token: ''
+  token: '',
+  account: {
+    visible: false
+  }
 }

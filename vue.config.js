@@ -1,7 +1,9 @@
 module.exports = {
   devServer: {
-    port: 8800,
-    proxy: 'https://www.fastmock.site/mock/4a968665bccbba113c09ebaebc8b40fb/vant'
+    // proxy: 'https://www.baidu.com/',
+    // proxy: 'https://www.163.com/',
+    port: 8800
+    // proxy: 'http://lmger.sihongapi.top/api/'
   },
   pwa: {
     name: 'Axmine',
