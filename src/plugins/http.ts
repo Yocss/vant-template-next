@@ -1,22 +1,5 @@
-import { Axios, JsonType, ResultType, ConfigType } from './axios/Index'
-class Http extends Axios {
-  /**
-   * 发请post请求
-   * @param url 接口地址
-   * @param data 请求参数
-   * @param config 修改请求配置
-   */
-  async post (url: string, data: JsonType, config: ConfigType = { option: {} }): Promise<ResultType> {
-    const conf: ConfigType = Object.assign({
-      method: 'post',
-      option: {}
-    }, config)
-    const result = this.request(url, data, conf)
-    return result
-  }
-}
-
-export default new Http({
+import { Axios } from './axios'
+const axios = new Axios({
   timeout: 10000,
   baseURL: '/',
   jsonData: false,
@@ -27,3 +10,22 @@ export default new Http({
     message: 'info'
   }
 })
+class Http {
+  /**
+   * 发请post请求
+   * @param url 接口地址
+   * @param data 请求参数
+   * @param config 修改请求配置
+   */
+  async post (url: string, data: JSON) {
+    const result = axios.request(url, data, {
+      method: 'post',
+      option: {
+        headers: {}
+      }
+    })
+    return result
+  }
+}
+
+export default new Http()

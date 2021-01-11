@@ -1,12 +1,47 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosInstance } from 'axios'
 import * as Qs from 'qs'
-import { OptionType, JsonType, ResultType, ConfigType } from './Axios.dto'
-import { initOption } from './initData'
+export interface JsonType { [key: string]: any }
+export interface ErrorMessageType { [key: number]: string }
+export interface CustomCodeType {
+  success: Array<number>;
+  [key: string]: Array<number>;
+}
+export interface FormatKeysType {
+  code: string;
+  result: string;
+  message: string;
+}
+export interface OptionType {
+  timeout?: number;
+  baseURL?: string;
+  jsonData?: boolean;
+  formatKeys?: FormatKeysType;
+  customCode?: CustomCodeType;
+  errorMessage?: ErrorMessageType;
+}
+export interface ResultType {
+  statusCode: number; // http状态码
+  code: number; // 服务端自定义状态码
+  result: any; // 结果项
+  message: string; // 信息
+}
+export interface ConfigOptionType {
+  baseURL?: string;
+  timeout?: number;
+  headers?: JsonType;
+  [key: string]: any;
+}
+export interface ConfigType {
+  method?: 'get' | 'post' | 'put' | 'patch' | 'delete' | 'head' | 'options';
+  option?: ConfigOptionType;
+  [key: string]: any;
+}
 
-class Axios {
+export class Axios {
   private http: AxiosInstance // http
-  private init: OptionType = initOption // 初始化参数
+
+  // 返回结果
   private resultData: ResultType = {
     statusCode: 500,
     code: -1,
@@ -14,8 +49,37 @@ class Axios {
     message: ''
   }
 
+  // 初始化参数
+  private init: OptionType = {
+    timeout: 1000,
+    baseURL: '/',
+    jsonData: true,
+    formatKeys: {
+      code: 'code',
+      result: 'result',
+      message: 'message'
+    } as FormatKeysType,
+    errorMessage: {
+      400: '请求发生错误，请联系工程师（400）',
+      401: '登陆信息失效，请重新登录（401）', // token无效，需要登录
+      402: '您的登录信息已过期（402）', // token过期，请求刷新token
+      403: '你没有足够的权限访问该资源（403）', // token权限不足，访问被禁止
+      404: '程序君找不到要请求的资源（404）',
+      405: '服务器拒绝了你的请求（405）', // 禁用请求中指定的方法
+      500: '请求错误，请联系工程师（500）', // 服务器遇到错误，无法完成请求
+      501: '请求异常，请联系工程师（501）', // 服务器不具备完成请求的功能
+      502: '数据异常，请联系工程师（502）', // 从服务器收到无效的响应
+      503: '服务繁忙，请稍候再试（503）', // 服务器超载或停机维护，暂时状态
+      504: '连接超时，请稍候再试（504）', // 未接收到服务器的响应
+      505: '不受支持的请求，请联系工程师（505）' // http版本不受支持
+    } as ErrorMessageType,
+    customCode: {
+      success: [0, 2000, 2010, 2040]
+    } as CustomCodeType
+  }
+
   constructor (option?: OptionType) {
-    this.init = Object.assign(initOption, option)
+    Object.assign(this.init, option)
     const config = this.init.jsonData ? {} : {
       transformRequest: [(data: JsonType) => { return Qs.stringify(data) }]
     }
@@ -69,8 +133,7 @@ class Axios {
 
   // 判断数据类型
   private getDataType (v: any): string {
-    const t = Object.prototype.toString.call(v)
-    return t.slice(8, -1).toLocaleLowerCase()
+    return Object.prototype.toString.call(v).slice(8, -1).toLowerCase()
   }
 
   // 转换响应数据格式
@@ -108,14 +171,12 @@ class Axios {
   private async callRequest (url: string, data: JsonType, config: ConfigType): Promise<ResultType> {
     const res = this.getResultData()
     const post = ['post', 'put', 'patch']
-    const m = post.concat(['get', 'delete', 'head', 'options'])
+    const mArrs = post.concat(['get', 'delete', 'head', 'options'])
     const confMethod = config?.method || 'get'
-    const method = m.includes(confMethod) ? confMethod : 'get'
+    const method = mArrs.includes(confMethod) ? confMethod : 'get'
     const query = post.includes(method) ? { data } : { params: data }
-    const option = config.option || {}
-    const requestParams = Object.assign({}, query, option)
     try {
-      const response = await this.http({ url, method, ...requestParams })
+      const response = await this.http({ url, method, ...Object.assign(query, config.option) })
       return Object.assign(res, response.data)
     } catch (error) {
       return error
@@ -130,17 +191,12 @@ class Axios {
    * @param config 请求参数配置
    */
   async request (url: string, data: JsonType, config?: ConfigType): Promise<ResultType> {
-    const conf: ConfigType = Object.assign({
-      method: 'get',
-      option: {}
-    }, config)
+    const conf: ConfigType = Object.assign({ method: 'get', option: {} }, config)
     const result = await this.callRequest(url, data, conf)
-    const customCode = this.init?.customCode || { success: [0, 2000, 2010] }
-    const success = customCode.success.includes(result.code)
+    const success = this.init.customCode?.success.includes(result.code) || false
     if (success) {
       result.code = 0
     }
     return result
   }
 }
-export { Axios, OptionType, ResultType, JsonType, ConfigType }
