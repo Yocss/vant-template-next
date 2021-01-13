@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createStore } from 'vuex'
-import state from './state'
+import { InjectionKey } from 'vue'
+import { createStore, useStore as baseUseStore, Store } from 'vuex'
+import { state, State } from './state'
 import mutations from './mutations'
 
-export default createStore({
+export const key: InjectionKey<Store<State>> = Symbol('For state.state')
+
+export const store = createStore<State>({
   // strict: process.env.NODE_ENV !== 'production',
   state,
   mutations,
@@ -18,3 +21,7 @@ export default createStore({
   modules: {
   }
 })
+
+export function useStore () {
+  return baseUseStore(key)
+}
