@@ -8,30 +8,24 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue'
-// import { useStore } from 'vuex'
-import axios from '@/plugins/http'
+// import { defineComponent, onMounted } from 'vue'
+import { defineComponent } from 'vue'
+import { useStore } from '@/store'
+// import axios from '@/plugins/http'
 export default defineComponent({
   name: 'Home',
   setup () {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async function getData (): Promise<any> {
-      const data = await axios.post('https://lm.sihongapi.top/v3/news/news_index', {
-        region: 360000,
-        device: 'mb',
-        profession: 235,
-        version: 0
-        // page: 1
-      })
-      console.log(data)
-    }
-    // const store = useStore()
-    onMounted(async () => {
-      await getData()
-      // console.log('=====')
-      // console.log(store.state.token)
-      // console.log('=====')
-    })
+    const store = useStore()
+    console.log(store.state.layout)
+    // store.dispatch('S')
+    // async function getData () {
+    //   const query = { region: 3600, device: 'mb', profession: 235, version: 0 }
+    //   const data = await axios.post('v3/news/news_index', query)
+    //   console.log(data)
+    // }
+    // onMounted(async () => {
+    //   await getData()
+    // })
     return {}
   }
 })
