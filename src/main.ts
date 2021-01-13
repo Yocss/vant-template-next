@@ -3,9 +3,9 @@ import App from './layout/App.vue'
 import 'vant/lib/index.css'
 import './plugins/registerServiceWorker'
 import router from './router'
-import store from './store'
+import { store, key } from './store'
 
-createApp(App).use(store).use(router).mount('#app')
+createApp(App).use(store, key).use(router).mount('#app')
 // const app = createApp(App)
 // app.use(store)
 // app.use(router)
