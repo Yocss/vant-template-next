@@ -1,5 +1,5 @@
 export interface State {
-  layout: string;
+  layout: 'default' | 'home' | 'null';
   transition: string;
   token: string;
   account: Record<'visible', boolean>;
