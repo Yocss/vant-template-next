@@ -12,7 +12,7 @@ export default defineComponent({
   name: 'App',
   setup () {
     const store = useStore()
-    // 计算出当前路由使用的布局
+    // 计算当前路由应当使用的布局
     const layout = computed(() => {
       const params = {
         default: LayoutDefault,

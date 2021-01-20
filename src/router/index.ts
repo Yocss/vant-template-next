@@ -4,14 +4,14 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'Home',
-    component: () => import('../pages/home/index.vue'),
+    name: 'HomeIndex',
+    component: () => import('@/pages/home/index.vue'),
     meta: { title: '首页' }
   },
   {
     path: '/news',
     name: 'NewsIndex',
-    component: () => import('../pages/news/index')
+    component: () => import('@/pages/news/index.vue')
   },
   {
     path: '/about',

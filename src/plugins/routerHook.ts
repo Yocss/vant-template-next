@@ -13,32 +13,42 @@ function setLayout (to: RouteLocationNormalized): void {
 
 function hook () {
   router.beforeEach((to, from, next) => {
-    // 如果第一次访问的不是首页，则先跳转到首页，然后从首页重定向至目标页
-    console.log('=======')
-    console.log(from.name)
-    console.log(from.name ? '非首次' : '首次访问')
-    console.log('=======')
+    // 首次进入应用的非首页, 先跳转到首页，然后再进入到目标页
     setLayout(to)
     next()
   })
 
+  router.beforeResolve((to, from, next) => {
+    // console.log(to)
+    // console.log(from)
+    if (!from.name && to.path !== '/') {
+      next({
+        name: 'HomeIndex',
+        replace: true,
+        params: { redirect: to.fullPath }
+      })
+    } else {
+      next()
+    }
+  })
+
   router.afterEach((to, from) => {
     // 页面转场
-    let animate = ''
+    let transition = ''
     if (from.name) {
       if (to.path === from.path) {
-        animate = 'goto'
+        transition = 'goto'
       } else {
         if (from.path.indexOf(to.path) === 0) {
-          animate = 'back'
+          transition = 'back'
         } else if (to.path.indexOf(from.path) === 0) {
-          animate = 'go'
+          transition = 'go'
         } else {
-          animate = 'goto'
+          transition = 'goto'
         }
       }
     }
-    store.dispatch('SetStore', { animate })
+    store.dispatch('SetStore', { transition })
 
     // 使用cnzz记录用户访问数据
     analytics(to.fullPath, from.fullPath)
