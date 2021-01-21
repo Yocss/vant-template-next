@@ -29,7 +29,7 @@ export default defineComponent({
   },
   setup () {
     const state = reactive({
-      show: false
+      show: true
     })
     // const router = useRouter()
     // const route = useRoute()
