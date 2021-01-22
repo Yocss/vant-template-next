@@ -1,21 +1,30 @@
 <template>
   <div class="account-swipe-item">
     <div class="box">
-      <AccountItemForm
-        :fields="fields"
-      />
-      <van-button
-        block
-        round
-        type="primary"
-      >立即登录</van-button>
+      <div class="bd">
+        <AccountItemForm
+          :data="data"
+          v-bind="$attrs"
+        />
+        <van-button
+          block
+          round
+          type="primary"
+          @click="onButtonClick"
+        >{{ data.buttonText }}</van-button>
+        <template v-if="page === 'login'">
+          <div class="other flex-between-center">
+            <a href="javascript:void(0);">短信登录</a>
+            <a href="javascript:void(0);">忘记密码</a>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>
 <script lang="ts">
-import { computed, defineComponent, reactive } from 'vue'
+import { defineComponent } from 'vue'
 import { Button } from 'vant'
-import { AccountItemKey } from './data'
 import AccountItemForm from './AccountItemForm.vue'
 export default defineComponent({
   name: 'AccountItem',
@@ -24,27 +33,9 @@ export default defineComponent({
     [Button.name]: Button
   },
   props: {
-    fields: {
-      type: Array,
-      default: () => { return [] }
-    },
-    page: {
-      type: String,
-      default: AccountItemKey.LOGIN
+    data: {
+      default: () => { return {} }
     }
-  },
-  setup (props) {
-    const state = reactive({})
-    const buttonText = computed(() => {
-      const res = {
-        [AccountItemKey.LOGIN]: '立即登录',
-        [AccountItemKey.JOIN]: '免费注册',
-        [AccountItemKey.FIND]: '重设密码'
-      }
-      const k = props.page || AccountItemKey.LOGIN
-      return res[k]
-    })
-    return { state, buttonText }
   }
 })
 </script>
@@ -57,4 +48,9 @@ export default defineComponent({
   .box
     width 100%
     height auto
+    .bd
+      .other
+        padding 0 $font
+        margin-top $font
+        font-size $font - 4
 </style>

@@ -14,9 +14,11 @@
         @click="onClose"
       />
       <h1>{{ title }}</h1>
-      <van-button round size="small">
-        注册
-      </van-button>
+      <van-button
+        round
+        size="small"
+        @click="doSwipe(2)"
+      >注册</van-button>
     </div>
     <!-- /head -->
 
@@ -38,8 +40,8 @@
         >
           <component
             :is="state.accountItem"
-            :page="item.key"
-            :fields="item.fields"
+            :data="item"
+            @event="onEvent"
           />
         </van-swipe-item>
       </van-swipe>
@@ -48,9 +50,9 @@
   </base-popup>
 </template>
 <script lang="ts">
-import { computed, defineComponent, reactive, toRef } from 'vue'
+import { computed, defineComponent, reactive, ref, toRef } from 'vue'
 import { Button, Swipe, SwipeItem } from 'vant'
-import { accounts } from './data'
+import { accounts, EventData } from './data'
 import BasePopup from '@/components/base/BasePopup.vue'
 import AccountItem from './AccountItem.vue'
 export default defineComponent({
@@ -66,21 +68,42 @@ export default defineComponent({
   },
   setup (props, context) {
     const state = reactive({ accountItem: AccountItem, active: 0, accounts })
+    // console.log(refSwipe)
+    const refSwipe = ref(null)
+
     // 登录框开关控制
     const visible = toRef(props, 'show')
+
     // 关闭登录框
     const onClose = () => { context.emit('update:show', false) }
+
     // 页面切换
     const onChange = (i: number) => { state.active = i }
+
     // 页面标题
     const title = computed(() => { return state.accounts[state.active].title })
+
+    // 监听子组件传回的数据
+    const onEvent = (e: EventData) => {
+      console.log(e)
+    }
+
+    // 轮播翻页
+    const doSwipe = (n: number) => {
+      const component = refSwipe.value || { swipeTo: (n: number) => { throw new Error(`组件错误, (${n})`) } }
+      component.swipeTo(n)
+    }
+
     // 返回数据
     return {
+      refSwipe,
       title,
       state,
       visible,
       onClose,
-      onChange
+      onChange,
+      onEvent,
+      doSwipe
     }
   }
 })
