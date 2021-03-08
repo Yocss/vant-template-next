@@ -32,11 +32,11 @@ const userAttrs: AttrsType = {
   type: 'digit', // 仅支持正整数
   placeholder: '请输入手机号'
 }
-const codeAttrs: AttrsType = {
-  maxlength: 4,
-  type: 'digit', // 仅支持正整数
-  placeholder: '请输入验证码'
-}
+// const codeAttrs: AttrsType = {
+//   maxlength: 4,
+//   type: 'digit', // 仅支持正整数
+//   placeholder: '请输入验证码'
+// }
 const passAttrs: AttrsType = {
   maxlength: 64,
   type: 'password', // 仅支持正整数
@@ -60,33 +60,16 @@ export const accounts: Array<AccountsItem> = [
   {
     title: '请登录',
     key: AccountItemKey.LOGIN,
-    // data: { [FieldKey.USER]: userAttrs, [FieldKey.PASS]: passAttrs },
     data: [
       {
         name: FieldKey.USER,
         attrs: userAttrs
+      },
+      {
+        name: FieldKey.PASS,
+        attrs: passAttrs
       }
     ],
     buttonText: '立即登录'
-  },
-  {
-    title: '注册帐号',
-    key: AccountItemKey.JOIN,
-    data: {
-      [FieldKey.USER]: userAttrs,
-      [FieldKey.CODE]: codeAttrs,
-      [FieldKey.PASS]: passAttrs
-    },
-    buttonText: '注册并登录'
-  },
-  {
-    title: '重设密码',
-    key: AccountItemKey.FIND,
-    data: {
-      [FieldKey.USER]: userAttrs,
-      [FieldKey.CODE]: codeAttrs,
-      [FieldKey.PASS]: passAttrs
-    },
-    buttonText: '立即重设'
   }
 ]

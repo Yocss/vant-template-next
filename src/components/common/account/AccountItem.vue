@@ -12,7 +12,7 @@
           type="primary"
           @click="onButtonClick"
         >{{ data.buttonText }}</van-button>
-        <template v-if="page === 'login'">
+        <template v-if="data === 'login'">
           <div class="other flex-between-center">
             <a href="javascript:void(0);">短信登录</a>
             <a href="javascript:void(0);">忘记密码</a>
@@ -36,6 +36,12 @@ export default defineComponent({
     data: {
       default: () => { return {} }
     }
+  },
+  setup () {
+    const onButtonClick = () => {
+      console.log('haha')
+    }
+    return onButtonClick
   }
 })
 </script>

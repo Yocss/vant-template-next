@@ -6,7 +6,7 @@ import { mutations } from './mutations'
 export const key: InjectionKey<Store<State>> = Symbol('For state.state')
 
 const actions: ActionTree<State, State> = {
-  SetStore (context, data: any) {
+  SetStore (context, data: Record<string, any>) {
     context.commit('SET_STORE', data)
   },
   SetToken ({ dispatch }, token: string) {

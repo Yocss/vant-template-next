@@ -11,15 +11,13 @@
         @click="open"
       >打开</a>
     </p>
-    <com-account
-      v-model:show="state.show"
-    />
+    <com-account />
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
 import ComAccount from '@/components/common/account/index.vue'
-// import { useStore } from '@/store'
+import { useStore } from '@/store'
 // import { useRoute, useRouter } from 'vue-router'
 // import axios from '@/plugins/http'
 export default defineComponent({
@@ -55,7 +53,11 @@ export default defineComponent({
     // onMounted(async () => {
     //   await getData()
     // })
-    const open = () => { state.show = true }
+    const store = useStore()
+    const open = () => {
+      // state.show = true
+      store.dispatch('SetStore', { account: { visible: true } })
+    }
     return { state, open }
   }
 })

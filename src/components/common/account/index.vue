@@ -28,7 +28,6 @@
         ref="refSwipe"
         :loop="false"
         :duration="300"
-        :autoplay="false"
         :touchable="true"
         :show-indicators="false"
         class="account-swipe"
@@ -38,11 +37,11 @@
           v-for="item in state.accounts"
           :key="item.key"
         >
-          <component
+          <!-- <component
             :is="state.accountItem"
             :data="item"
             @event="onEvent"
-          />
+          /> -->
         </van-swipe-item>
       </van-swipe>
     </div>
@@ -50,32 +49,34 @@
   </base-popup>
 </template>
 <script lang="ts">
-import { computed, defineComponent, reactive, ref, toRef } from 'vue'
+import { computed, defineComponent, reactive, ref } from 'vue'
 import { Button, Swipe, SwipeItem } from 'vant'
 import { accounts, EventData } from './data'
+import { useStore } from '@/store'
 import BasePopup from '@/components/base/BasePopup.vue'
 import AccountItem from './AccountItem.vue'
 export default defineComponent({
   name: 'ComAccount',
-  props: {
-    show: { default: false }
-  },
   components: {
     [Swipe.name]: Swipe,
     [SwipeItem.name]: SwipeItem,
     [Button.name]: Button,
     BasePopup
   },
-  setup (props, context) {
+  setup () {
     const state = reactive({ accountItem: AccountItem, active: 0, accounts })
-    // console.log(refSwipe)
+    const store = useStore()
     const refSwipe = ref(null)
 
     // 登录框开关控制
-    const visible = toRef(props, 'show')
+    const visible = computed(() => {
+      return store.state.account.visible
+    })
 
     // 关闭登录框
-    const onClose = () => { context.emit('update:show', false) }
+    const onClose = () => {
+      store.dispatch('SetStore', { account: { visible: false } })
+    }
 
     // 页面切换
     const onChange = (i: number) => { state.active = i }
