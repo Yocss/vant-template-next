@@ -1,9 +1,10 @@
 <template>
   <base-popup
-    v-model:show="visible"
+    :show="visible"
     :style="{ height: '100%' }"
     :duration="0.25"
     class="account-box"
+    @closed="onClosed"
   >
     <!-- head -->
     <div class="hd flex-between-center">
@@ -70,12 +71,19 @@ export default defineComponent({
 
     // 登录框开关控制
     const visible = computed(() => {
-      return store.state.account.visible
+      const v = store.state.account.visible
+      console.log('==')
+      console.log(v)
+      console.log('==')
+      return v
     })
 
     // 关闭登录框
     const onClose = () => {
       store.dispatch('SetStore', { account: { visible: false } })
+    }
+    const onClosed = () => {
+      console.log('hahaha')
     }
 
     // 页面切换
@@ -102,6 +110,7 @@ export default defineComponent({
       state,
       visible,
       onClose,
+      onClosed,
       onChange,
       onEvent,
       doSwipe
