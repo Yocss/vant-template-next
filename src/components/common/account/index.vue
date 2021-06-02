@@ -18,7 +18,7 @@
       <van-button
         round
         size="small"
-        @click="doSwipe(2)"
+        @click="doSwipe"
       >注册</van-button>
     </div>
     <!-- /head -->
@@ -28,8 +28,8 @@
       <van-swipe
         ref="refSwipe"
         :loop="false"
-        :duration="300"
-        :touchable="true"
+        :duration="200"
+        :touchable="isDev"
         :show-indicators="false"
         class="account-swipe"
         @change="onChange"
@@ -38,11 +38,11 @@
           v-for="item in state.accounts"
           :key="item.key"
         >
-          <!-- <component
+          <component
             :is="state.accountItem"
             :data="item"
             @event="onEvent"
-          /> -->
+          />
         </van-swipe-item>
       </van-swipe>
     </div>
@@ -52,10 +52,11 @@
 <script lang="ts">
 import { computed, defineComponent, reactive, ref } from 'vue'
 import { Button, Swipe, SwipeItem } from 'vant'
-import { accounts, EventData } from './data'
+import { EventType } from '@/common/interface'
 import { useStore } from '@/store'
 import BasePopup from '@/components/base/BasePopup.vue'
 import AccountItem from './AccountItem.vue'
+import { accounts } from './data'
 export default defineComponent({
   name: 'ComAccount',
   components: {
@@ -65,26 +66,17 @@ export default defineComponent({
     BasePopup
   },
   setup () {
+    const isDev = process.env.NODE_ENV === 'development'
     const state = reactive({ accountItem: AccountItem, active: 0, accounts })
     const store = useStore()
     const refSwipe = ref(null)
 
     // 登录框开关控制
-    const visible = computed(() => {
-      const v = store.state.account.visible
-      console.log('==')
-      console.log(v)
-      console.log('==')
-      return v
-    })
+    const visible = computed(() => { return store.state.account.visible })
 
     // 关闭登录框
-    const onClose = () => {
-      store.dispatch('SetStore', { account: { visible: false } })
-    }
-    const onClosed = () => {
-      console.log('hahaha')
-    }
+    const onClose = () => { store.dispatch('SetStore', { account: { visible: false } }) }
+    const onClosed = () => { console.log('closed') }
 
     // 页面切换
     const onChange = (i: number) => { state.active = i }
@@ -92,19 +84,28 @@ export default defineComponent({
     // 页面标题
     const title = computed(() => { return state.accounts[state.active].title })
 
-    // 监听子组件传回的数据
-    const onEvent = (e: EventData) => {
-      console.log(e)
+    // 轮播翻页
+    const doSwipe = (to = 'join') => {
+      const i = state.accounts.findIndex(e => e.key === to)
+      const component = refSwipe.value || { swipeTo: (i: number) => { throw new Error(`组件错误, (${i})`) } }
+      component.swipeTo(i)
     }
 
-    // 轮播翻页
-    const doSwipe = (n: number) => {
-      const component = refSwipe.value || { swipeTo: (n: number) => { throw new Error(`组件错误, (${n})`) } }
-      component.swipeTo(n)
+    // 监听子组件传回的数据
+    const onEvent = (event: EventType) => {
+      const action = event.action
+      switch (action) {
+        case 'swipeTo': {
+          const to = event.data as string || ''
+          doSwipe(to)
+          break
+        }
+      }
     }
 
     // 返回数据
     return {
+      isDev,
       refSwipe,
       title,
       state,

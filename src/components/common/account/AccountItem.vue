@@ -3,7 +3,7 @@
     <div class="box">
       <div class="bd">
         <AccountItemForm
-          :data="data"
+          :fields="data.fields"
           v-bind="$attrs"
         />
         <van-button
@@ -12,10 +12,24 @@
           type="primary"
           @click="onButtonClick"
         >{{ data.buttonText }}</van-button>
-        <template v-if="data === 'login'">
+        <template v-if="data.key === 'login'">
           <div class="other flex-between-center">
-            <a href="javascript:void(0);">短信登录</a>
-            <a href="javascript:void(0);">忘记密码</a>
+            <a
+              href="javascript:void(0);"
+              @click="onClick('sms')"
+            >短信登录</a>
+            <a
+              href="javascript:void(0);"
+              @click="onClick('reset')"
+            >忘记密码</a>
+          </div>
+        </template>
+        <template v-else-if="data.key === 'sms'">
+          <div class="other flex-center">
+            <a
+              href="javascript:void(0);"
+              @click="onClick('login')"
+            >返回使用帐号密码登录</a>
           </div>
         </template>
       </div>
@@ -25,6 +39,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { Button } from 'vant'
+import { AccountType, FieldType } from './data'
 import AccountItemForm from './AccountItemForm.vue'
 export default defineComponent({
   name: 'AccountItem',
@@ -34,14 +49,25 @@ export default defineComponent({
   },
   props: {
     data: {
-      default: () => { return {} }
+      default: () => { return {} as AccountType }
     }
   },
-  setup () {
+  setup (prop, { emit }) {
     const onButtonClick = () => {
-      console.log('haha')
+      const k = prop.data.key
+      const form: Record<string, unknown> = {}
+      prop.data.fields.forEach((item: FieldType) => {
+        form[item.key] = item.value
+      })
+      console.log(k, form)
     }
-    return onButtonClick
+    const onClick = (data: string) => {
+      emit('event', { action: 'swipeTo', data })
+    }
+    return {
+      onClick,
+      onButtonClick
+    }
   }
 })
 </script>

@@ -1,14 +1,15 @@
 <template>
   <div class="account-item-form">
-    <template v-for="field in data.fields" :key="field">
+    <template v-for="field in fields" :key="field">
+      <!-- v-model="form[field]" -->
       <van-field
-        v-model="form[field]"
+        v-model="field.value"
         size="large"
-        v-bind="data.attrs"
+        v-bind="field.attrs"
         class="account-field"
       >
         <template
-          v-if="field === 'code'"
+          v-if="field.key === 'code'"
           #button
         >
           <van-button
@@ -32,8 +33,9 @@ export default defineComponent({
     [Field.name]: Field
   },
   props: {
-    data: {
-      default: () => { return {} }
+    fields: {
+      type: Array,
+      default: () => { return [] }
     }
   }
 })
