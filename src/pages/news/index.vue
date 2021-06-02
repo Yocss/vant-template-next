@@ -10,24 +10,19 @@
         href="javascript:void(0);"
         @click="open"
       >打开</a>
-      <com-account
-        v-model:show="state.show"
-      />
     </div>
   </div>
 </template>
 <script lang="ts">
-// import { defineComponent, onMounted } from 'vue'
 import { defineComponent, reactive } from 'vue'
-import ComAccount from '@/components/common/account/index.vue'
-// import { useStore } from '@/store'
+import { useStore } from '@/store'
 // import { onBeforeRouteLeave } from 'vue-router'
 export default defineComponent({
   name: 'NewsIndex',
   components: {
-    ComAccount
   },
   setup () {
+    const store = useStore()
     const state = reactive({
       show: false
     })
@@ -38,7 +33,7 @@ export default defineComponent({
     //   console.log(from)
     //   next(false)
     // })
-    const open = () => { state.show = true }
+    const open = () => { store.dispatch('SetStore', { account: { visible: true } }) }
     return { state, open }
   }
 })

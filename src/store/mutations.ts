@@ -31,7 +31,7 @@ const mutations: MutationTree<State> & Mutations = {
           state[k] = data[k]
         }
       })
-      console.log(state.account)
+      // console.log(state.account)
     } else {
       throw new Error('data 必须是对象类型')
     }

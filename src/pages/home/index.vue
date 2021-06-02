@@ -11,19 +11,18 @@
         @click="open"
       >打开</a>
     </p>
-    <com-account />
+    <!-- <com-account /> -->
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
-import ComAccount from '@/components/common/account/index.vue'
 import { useStore } from '@/store'
 // import { useRoute, useRouter } from 'vue-router'
 // import axios from '@/plugins/http'
 export default defineComponent({
   name: 'HomeIndex',
   components: {
-    ComAccount
+    // ComAccount
   },
   setup () {
     const state = reactive({
