@@ -79,6 +79,7 @@ export default defineComponent({
       }
     })
     const getCode = () => {
+      // 发送验证码之前，computed里已做过验证，是否有必要检查一下手机号是否合法?
       loading.value = true
       emit('event', { action: 'getCode' })
     }
