@@ -11,14 +11,14 @@
       <van-button
         round
         size="small"
-        icon="cross"
-        @click="onClose"
+        :icon="active < 1 ? 'cross' : 'arrow-left'"
+        @click="onClick('l')"
       />
-      <h1>{{ title }}</h1>
       <van-button
+        v-show="active < 1"
         round
         size="small"
-        @click="doSwipe"
+        @click="onClick('r')"
       >注册</van-button>
     </div>
     <!-- /head -->
@@ -28,9 +28,11 @@
       <van-swipe
         ref="refSwipe"
         :loop="false"
-        :duration="200"
-        :touchable="isDev"
+        :vertical="false"
         :show-indicators="false"
+        :duration="300"
+        :touchable="isDev"
+        lazy-render
         class="account-swipe"
         @change="onChange"
       >
@@ -38,8 +40,7 @@
           v-for="item in state.accounts"
           :key="item.key"
         >
-          <component
-            :is="state.accountItem"
+          <account-item
             :data="item"
             @event="onEvent"
           />
@@ -51,7 +52,7 @@
 </template>
 <script lang="ts">
 import { computed, defineComponent, reactive, ref } from 'vue'
-import { Button, Swipe, SwipeItem } from 'vant'
+import { Button, Swipe, SwipeItem, SwipeToOptions } from 'vant'
 import { EventType } from '@/common/interface'
 import { useStore } from '@/store'
 import BasePopup from '@/components/base/BasePopup.vue'
@@ -60,6 +61,7 @@ import { accounts } from './data'
 export default defineComponent({
   name: 'ComAccount',
   components: {
+    AccountItem,
     [Swipe.name]: Swipe,
     [SwipeItem.name]: SwipeItem,
     [Button.name]: Button,
@@ -67,29 +69,42 @@ export default defineComponent({
   },
   setup () {
     const isDev = process.env.NODE_ENV === 'development'
-    const state = reactive({ accountItem: AccountItem, active: 0, accounts })
+    const state = reactive({ accounts })
+    const active = ref(0)
     const store = useStore()
     const refSwipe = ref(null)
 
     // 登录框开关控制
     const visible = computed(() => { return store.state.account.visible })
-
-    // 关闭登录框
-    const onClose = () => { store.dispatch('SetStore', { account: { visible: false } }) }
+    // 登录框已关闭
     const onClosed = () => { console.log('closed') }
 
-    // 页面切换
-    const onChange = (i: number) => { state.active = i }
-
-    // 页面标题
-    const title = computed(() => { return state.accounts[state.active].title })
-
-    // 轮播翻页
-    const doSwipe = (to = 'join') => {
-      const i = state.accounts.findIndex(e => e.key === to)
-      const component = refSwipe.value || { swipeTo: (i: number) => { throw new Error(`组件错误, (${i})`) } }
-      component.swipeTo(i)
+    const swipeTo = (n: number) => {
+      const component = refSwipe.value || {
+        swipeTo: (n: number, o: SwipeToOptions = { immediate: false }) => {
+          throw new Error(`组件错误, (${n}), ${o}`)
+        }
+      }
+      component.swipeTo(n, { immediate: false })
     }
+
+    // 关闭登录框
+    const onClick = (direction: string) => {
+      switch (direction) {
+        case 'l':
+          active.value > 0 ? swipeTo(0) : store.dispatch('SetStore', {
+            account: { visible: false }
+          })
+          break
+        case 'r':
+          // console.log('点击了顶部右侧按钮')
+          swipeTo(2)
+          break
+      }
+    }
+
+    // 页面切换
+    const onChange = (i: number) => { active.value = i }
 
     // 监听子组件传回的数据
     const onEvent = (event: EventType) => {
@@ -97,7 +112,12 @@ export default defineComponent({
       switch (action) {
         case 'swipeTo': {
           const to = event.data as string || ''
-          doSwipe(to)
+          const i = state.accounts.findIndex(e => e.key === to)
+          swipeTo(i)
+          break
+        }
+        case 'getCode': {
+          // 要检查一下手机号是否合法
           break
         }
       }
@@ -106,15 +126,14 @@ export default defineComponent({
     // 返回数据
     return {
       isDev,
+      active,
       refSwipe,
-      title,
       state,
       visible,
-      onClose,
+      onClick,
       onClosed,
       onChange,
-      onEvent,
-      doSwipe
+      onEvent
     }
   }
 })
@@ -122,7 +141,7 @@ export default defineComponent({
 <style lang="stylus">
 @import '~@/assets/css/common/variables.styl';
 .account-box
-  .hd
+  &>.hd
     position absolute
     left 0
     top 0
@@ -134,7 +153,7 @@ export default defineComponent({
     h1
       font-size $font
       font-weight normal
-  .bd
+  &>.bd
     padding-top $font * 3
     width 100%
     height 100%
