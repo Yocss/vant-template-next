@@ -124,7 +124,7 @@ export const accounts: Array<AccountType> = [
         rules: passRules
       }
     ],
-    buttonText: '免费注册'
+    buttonText: '注册并登录'
   },
   {
     title: '重设密码',

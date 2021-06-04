@@ -37,13 +37,16 @@
           <div class="other flex-column-center">
             <div class="license flex-align-center">
               <van-checkbox
-                v-model="agreeLicense"
+                v-model="checked"
                 shape="square"
                 icon-size="16px"
               >
                 我已阅读并同意
               </van-checkbox>
-              <router-link to="/license">《服务协议》</router-link>
+              <a
+                href="javascript:void(0);"
+                @click="visible = true"
+              >《服务协议》</a>
               <span>的内容。</span>
             </div>
             <a
@@ -70,17 +73,24 @@
     <div class="box">
       <!-- 帐号或短信登录时，底部显示第三方登录 -->
     </div>
+    <com-license
+      :show="visible"
+      @event="onEvent"
+    />
   </div>
 </template>
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue'
-import { Button, Checkbox } from 'vant'
+import { Button, Checkbox, Notify } from 'vant'
 import { AccountType, FieldType } from './data'
+import { EventType } from '@/common/interface'
 import AccountItemForm from './AccountItemForm.vue'
+import ComLicense from '@/components/common/license.vue'
 export default defineComponent({
   name: 'AccountItem',
   components: {
     AccountItemForm,
+    ComLicense,
     [Checkbox.name]: Checkbox,
     [Button.name]: Button
   },
@@ -90,23 +100,39 @@ export default defineComponent({
     }
   },
   setup (prop, { emit }) {
-    const agreeLicense = ref(false)
+    const checked = ref(false)
+    const visible = ref(false)
     const doSubmit = () => {
       const k = prop.data.key
       const form: Record<string, unknown> = {}
       prop.data.fields.forEach((item: FieldType) => {
         form[item.key] = item.value
       })
-      console.log(k, form)
+      if (k === 'join' && !checked.value) {
+        Notify({ type: 'danger', message: '同意服务协议内容方可继续为您提供服务喔！' })
+        return false
+      }
+      console.log(k, form, '点击了提交按钮')
     }
     const title = computed(() => { return prop.data.title })
     const onClick = (data: string) => {
       emit('event', { action: 'swipeTo', data })
     }
+    const onEvent = (event: EventType) => {
+      switch (event.action) {
+        case 'toggleVisible':
+          // console.log(event.data)
+          checked.value = Boolean(event.data)
+          visible.value = false
+          break
+      }
+    }
     return {
-      agreeLicense,
+      checked,
+      visible,
       title,
       onClick,
+      onEvent,
       doSubmit
     }
   }

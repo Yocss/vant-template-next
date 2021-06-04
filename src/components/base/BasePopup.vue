@@ -27,9 +27,13 @@ export default defineComponent({
   components: {
     [Popup.name]: Popup
   },
-  setup (props) {
-    const visible = toRef(props, 'show')
-    return { visible }
+  setup (prop) {
+    const visible = toRef(prop, 'show')
+    // const showSlot = ref(false)
+    return {
+      visible
+      // showSlot,
+    }
   }
 })
 </script>

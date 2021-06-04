@@ -5,21 +5,20 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'HomeIndex',
-    component: () => import('@/pages/home/index.vue'),
+    component: () => import('@/views/home/index.vue'),
     meta: { title: '首页' }
   },
   {
     path: '/news',
     name: 'NewsIndex',
-    component: () => import('@/pages/news/index.vue')
+    component: () => import('@/views/news/index.vue'),
+    meta: { title: '新闻' }
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: '/:pathMatch(.*)*',
+    name: 'ErrorIndex',
+    component: () => import('@/views/error/index.vue'),
+    meta: { title: '访问出错了', layout: 'home' }
   }
 ]
 
