@@ -4,6 +4,7 @@
     :style="{ height: '100%' }"
     :duration="0.25"
     class="account-box"
+    @open="onToggle"
     @closed="onClosed"
   >
     <!-- head -->
