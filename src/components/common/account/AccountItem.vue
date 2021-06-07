@@ -102,6 +102,7 @@ export default defineComponent({
   setup (prop, { emit }) {
     const checked = ref(false)
     const visible = ref(false)
+
     const doSubmit = () => {
       const k = prop.data.key
       const form: Record<string, unknown> = {}
