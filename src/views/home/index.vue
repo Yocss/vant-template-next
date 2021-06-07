@@ -3,7 +3,7 @@
     ref="refRoot"
     class="home-index"
   >
-    home
+    <com-swipe />
     <router-link to="/news">去新闻页</router-link>
     <p>
       <a
@@ -17,11 +17,13 @@
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
 import { useStore } from '@/store'
+import ComSwipe from '@/components/common/swipe.vue'
 // import { useRoute, useRouter } from 'vue-router'
 // import axios from '@/plugins/http'
 export default defineComponent({
   name: 'HomeIndex',
   components: {
+    ComSwipe
     // ComAccount
   },
   setup () {
