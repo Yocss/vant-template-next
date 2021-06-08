@@ -3,7 +3,14 @@
     ref="refRoot"
     class="home-index"
   >
-    <com-swipe />
+    <!-- 轮播图 -->
+    <div class="home-index-banner">
+      <div class="box">
+        <com-banner :data="banners" />
+      </div>
+    </div>
+    <!-- /轮播图 -->
+
     <router-link to="/news">去新闻页</router-link>
     <p>
       <a
@@ -17,19 +24,28 @@
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
 import { useStore } from '@/store'
-import ComSwipe from '@/components/common/swipe.vue'
+import ComBanner from '@/components/common/banner/index.vue'
 // import { useRoute, useRouter } from 'vue-router'
 // import axios from '@/plugins/http'
 export default defineComponent({
   name: 'HomeIndex',
   components: {
-    ComSwipe
+    ComBanner
     // ComAccount
   },
   setup () {
-    const state = reactive({
-      show: true
-    })
+    const banners = reactive([
+      {
+        src: '/b1.jpg',
+        alt: '测试哈',
+        href: '/news'
+      },
+      {
+        src: '/b2.jpg',
+        alt: 'asdlkfsjdlf',
+        href: '/about'
+      }
+    ])
     // const router = useRouter()
     // const route = useRoute()
     // const redirect = route.params.redirect || ''
@@ -56,15 +72,23 @@ export default defineComponent({
     // })
     const store = useStore()
     const open = () => {
-      // state.show = true
       store.dispatch('SetStore', { account: { visible: true } })
     }
-    return { state, open }
+    return { banners, open }
   }
 })
 </script>
 <style lang="stylus">
+@import '~@/assets/css/common/variables.styl'
 .home-index
   width 100%
   height 100%
+  &-banner
+    width 100%
+    height 360px
+    // padding $font
+    .box
+      width 100%
+      height 100%
+      overflow hidden
 </style>
