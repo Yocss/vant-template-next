@@ -3,6 +3,9 @@
     ref="refRoot"
     class="home-index"
   >
+    <div class="home-index-player">
+      <axmine-player />
+    </div>
     <!-- 轮播图 -->
     <div class="home-index-banner">
       <div class="box">
@@ -25,11 +28,13 @@
 import { defineComponent, reactive } from 'vue'
 import { useStore } from '@/store'
 import ComBanner from '@/components/common/banner/index.vue'
+import AxminePlayer from '@/components/common/player/index.vue'
 // import { useRoute, useRouter } from 'vue-router'
 // import axios from '@/plugins/http'
 export default defineComponent({
   name: 'HomeIndex',
   components: {
+    AxminePlayer,
     ComBanner
     // ComAccount
   },
@@ -83,6 +88,10 @@ export default defineComponent({
 .home-index
   width 100%
   height 100%
+  &-player
+    width 100%
+    height 420px
+    background-color #f8f8f8
   &-banner
     width 100%
     height 360px
