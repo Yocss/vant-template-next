@@ -4,7 +4,11 @@
     class="home-index"
   >
     <div class="home-index-player">
-      <axmine-player />
+      <axmine-player
+        ref="axminePlayer"
+        @event="onEvent"
+        :src="video"
+      />
     </div>
     <!-- 轮播图 -->
     <div class="home-index-banner">
@@ -15,6 +19,10 @@
     <!-- /轮播图 -->
 
     <router-link to="/news">去新闻页</router-link>
+    <div
+      style="padding: 32px;"
+      @click="toggleVideo"
+    >切换视频源</div>
     <p>
       <a
         href="javascript:void(0);"
@@ -25,7 +33,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 import { useStore } from '@/store'
 import ComBanner from '@/components/common/banner/index.vue'
 import AxminePlayer from '@/components/common/player/index.vue'
@@ -39,6 +47,8 @@ export default defineComponent({
     // ComAccount
   },
   setup () {
+    const video = ref('https://vod.jiankao.wang/7c01465c94e449eeb2c795909d6b5eca/84b66563011d4411b801161ac54cd95a-6a3736091d286b946486bc6e0da0fdc7-sd.mp4')
+    const axminePlayer = ref(null)
     const banners = reactive([
       {
         src: '/b1.jpg',
@@ -79,7 +89,18 @@ export default defineComponent({
     const open = () => {
       store.dispatch('SetStore', { account: { visible: true } })
     }
-    return { banners, open }
+    const toggleVideo = () => {
+      const temp = 'https://vod.jiankao.wang/366c82d7ef4247efae7da2104713ebaf/c8c454d968144b079cfe0d5c901f2b5e-74895cf715fd7e56ede8175efa4bfcc7-sd.mp4'
+      const temp2 = 'https://vod.jiankao.wang/7c01465c94e449eeb2c795909d6b5eca/84b66563011d4411b801161ac54cd95a-6a3736091d286b946486bc6e0da0fdc7-sd.mp4'
+      // const temp = video.value
+      video.value = video.value === temp ? temp2 : temp
+      const player: Record<string, Function> = axminePlayer.value || {}
+      if (player) { player.invoke('play') }
+    }
+    const onEvent = (e: unknown) => {
+      console.log(e)
+    }
+    return { banners, video, open, toggleVideo, axminePlayer, onEvent }
   }
 })
 </script>

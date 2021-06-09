@@ -1,0 +1,25 @@
+.axmine-player
+  width 100%
+  height 100%
+  user-select none
+  &-box
+    font-size 12PX
+    user-select none
+    .vjs-picture-in-picture-control
+      display: none
+    // 显示视频剩余时间
+    &.video-js.vjs-layout-small .vjs-remaining-time
+      display: block !important
+      span
+        display: none
+      .vjs-remaining-time-display
+        display: initial
+        user-select none
+    .vjs-poster
+      background-size: 100% 100%
+    .vjs-big-play-button
+      width 2.5em
+      border-radius 1.25em
+    &.vjs-big-play-centered
+      .vjs-big-play-button
+        margin-left -1.25em
