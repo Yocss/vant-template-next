@@ -1,7 +1,8 @@
 <template>
   <div
     id="axmine-player"
-    :class="'axmine-player ' + audio ? 'is-audio' : ''"
+    :class="{ 'is-audio': audio, 'hide-controll-bar': hideControllBar }"
+    class="axmine-player"
   />
 </template>
 <script lang="ts">
@@ -10,16 +11,24 @@ import 'video.js/dist/video-js.min.css'
 import 'videojs-contrib-hls'
 import videojs, { VideoJsPlayer, VideoJsPlayerOptions } from 'video.js'
 import zh from './zh-cn'
+import { isNumeric } from 'vant/lib/utils'
 export default defineComponent({
   name: 'AxminePlayer',
   props: {
+    // 视频地址
     src: {
       type: String,
       default: ''
     },
+    // 封面图
     poster: {
       type: String,
       default: ''
+    },
+    // 是否显示控制栏
+    hideControll: {
+      type: Boolean,
+      default: true
     },
     option: {
       type: Object,
@@ -29,13 +38,15 @@ export default defineComponent({
   setup (prop, { emit }) {
     const audio = ref(false)
     const timer = ref(0)
+    const tag = reactive({ div: {} as Element })
+    const hideControllBar = computed(() => { return prop.hideControll })
     const data = reactive({ player: {} as VideoJsPlayer })
     const src = computed(() => { return prop.src || prop.option.sources })
     const poster = computed(() => { return prop.poster })
     const events = ref([
       'loadstart',
       'loadedmetadata',
-      'canplay',
+      // 'canplay',
       'firstplay',
       'playing',
       'play',
@@ -61,8 +72,8 @@ export default defineComponent({
         }
       })
     }
-    const playEvent = (data: Record<string, unknown>) => {
-      doEmit(data)
+    const playEvent = (origin: Record<string, unknown>) => {
+      doEmit(origin)
     }
     const addEvent = () => {
       events.value.forEach(event => {
@@ -71,6 +82,7 @@ export default defineComponent({
           audio.value = (data.player.currentType()).split('/')[0] === 'audio'
         }
         data.player.on(event, playEvent)
+        // data.player.on(undefined, undefined, playEvent)
       })
     }
     const removeEvent = () => {
@@ -78,14 +90,91 @@ export default defineComponent({
         data.player.off(event, playEvent)
       })
     }
+    const invoke = (action: string, arg?: unknown) => {
+      const player = data.player
+      const timeRanges: Record<string, number> = player.played()
+      // player.paused()
+      switch (action) {
+        case 'togglePlay': {
+          player.ready(() => {
+            if (player.paused()) {
+              if (!hideControllBar.value) {
+                invoke('play')
+              } else {
+                !player.hasClass('vjs-has-started') && invoke('play')
+              }
+            } else if (timeRanges.length > 0) {
+              if (!hideControllBar.value && player.hasClass('vjs-playing')) {
+                // 一般情况下，单击播放页面是为了显示控制栏，So active层激活时才可以执行暂停
+                player.hasClass('vjs-user-active') && invoke('pause')
+              }
+            }
+          })
+          break
+        }
+        case 'play': {
+          // can play 的情况下开始播放
+          if (timeRanges?.length > 0) {
+            player.play()
+          } else {
+            player.ready(() => {
+              player.load()
+              player.on('loadedmetadata', () => {
+                player.play()
+              })
+            })
+          }
+          // axminePlayerControll.value = false
+          break
+        }
+        case 'pause':
+          player.ready(() => { player.pause() })
+          break
+        case 'playbackRate':
+          if (isNumeric(arg as (string | number))) {
+            player.playbackRate(arg as number)
+          } else {
+            return player.playbackRate()
+          }
+          break
+        case 'muted':
+          if (arg === true || arg === false) {
+            player.ready(() => { player.muted(arg) })
+          } else {
+            return player.muted()
+            // player.ready(() => { return player.muted() })
+          }
+          break
+        case 'currentTime':
+          player.ready(() => { player.currentTime(arg as number) })
+          break
+        case 'src':
+          player.ready(() => { player.src(arg as string) })
+          break
+        case 'poster':
+          player.ready(() => { player.poster(arg as string) })
+          break
+        case 'volume':
+          player.ready(() => { player.volume(arg as number) })
+          break
+        case 'speed':
+          player.ready(() => { player.playbackRate(arg as number) })
+          break
+        case 'readyState':
+          return player.readyState()
+      }
+    }
+    const togglePlay = () => { invoke('togglePlay') }
     const createPlayer = () => {
       clearTimeout(timer.value)
       // 如果没有播放地址，则不创建播放器
       if (!src.value) { return false }
       // 1. 创建 video 标签
-      const className = 'axmine-player-box video-js vjs-big-play-centered'
+      // const className = 'axmine-player-box video-js vjs-big-play-centered'
+      const className = 'axmine-player-box video-js'
       const video = videojs.dom.createEl('video', {}, { class: className })
-      const ref = document.getElementById('axmine-player')?.appendChild(video)
+      const pNode = document.getElementById('axmine-player')
+      const ref = pNode?.appendChild(video)
 
       // 2. 合并选项
       const options = Object.assign({
@@ -110,51 +199,23 @@ export default defineComponent({
         // 将语言设置为中文
         videojs.addLanguage('zh-CN', zh)
         data.player = videojs(ref, options, function onPlayerReady () {
+          // 开始监听事件
           addEvent()
+          // 加入自定义的控制器
+          tag.div = videojs.dom.createEl('div', {}, { class: 'axmine-player-controll' })
+          data.player.$('video').after(tag.div)
+          tag.div.addEventListener('click', togglePlay)
         })
       }
     }
-    const invoke = (action: string, arg?: unknown) => {
-      const player = data.player
-      switch (action) {
-        case 'play':
-          // can play 的情况下开始播放
-          player.ready(() => {
-            player.on('canplay', () => {
-              player.play()
-            })
-          })
-          break
-        case 'pause':
-          player.ready(() => { player.pause() })
-          break
-        case 'muted':
-          player.ready(() => { player.muted(Boolean(arg)) })
-          break
-        case 'currentTime':
-          player.ready(() => { player.currentTime(arg as number) })
-          break
-        case 'src':
-          player.ready(() => { player.src(arg as string) })
-          break
-        case 'poster':
-          player.ready(() => { player.poster(arg as string) })
-          break
-        case 'volume':
-          player.ready(() => { player.volume(arg as number) })
-          break
-        case 'speed':
-          player.ready(() => { player.playbackRate(arg as number) })
-          break
-      }
-    }
     onMounted(() => {
-      // 组件加载完成后，延时 20 毫秒启动创建播放器
-      timer.value = setTimeout(() => { createPlayer() }, 20)
+      // 组件加载完成后，延时 10 毫秒启动创建播放器
+      timer.value = setTimeout(() => { createPlayer() }, 10)
     })
     onUnmounted(() => {
       clearTimeout(timer.value)
       if (data.player.controlBar) {
+        tag.div.removeEventListener('click', togglePlay)
         removeEvent()
         data.player.dispose()
         data.player = {} as VideoJsPlayer
@@ -168,7 +229,7 @@ export default defineComponent({
         createPlayer()
       }
     })
-    return { audio, invoke }
+    return { audio, hideControllBar, invoke }
   }
 })
 </script>

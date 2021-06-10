@@ -19,10 +19,16 @@
     <!-- /轮播图 -->
 
     <router-link to="/news">去新闻页</router-link>
+    <div style="padding: 32px;">{{ action }}</div>
     <div
       style="padding: 32px;"
-      @click="toggleVideo"
-    >切换视频源</div>
+      class="flex-align-center"
+    >
+      <van-button @click="toggleVideo('toggle')">切换src</van-button>
+      <van-button @click="toggleVideo('play')">播放</van-button>
+      <van-button @click="toggleVideo('pause')">暂停</van-button>
+      <van-button @click="toggleVideo('muted')">静音</van-button>
+    </div>
     <p>
       <a
         href="javascript:void(0);"
@@ -34,14 +40,17 @@
 </template>
 <script lang="ts">
 import { defineComponent, reactive, ref } from 'vue'
+import { Button } from 'vant'
 import { useStore } from '@/store'
 import ComBanner from '@/components/common/banner/index.vue'
 import AxminePlayer from '@/components/common/player/index.vue'
+import { EventType } from '@/common/interface'
 // import { useRoute, useRouter } from 'vue-router'
 // import axios from '@/plugins/http'
 export default defineComponent({
   name: 'HomeIndex',
   components: {
+    [Button.name]: Button,
     AxminePlayer,
     ComBanner
     // ComAccount
@@ -49,6 +58,7 @@ export default defineComponent({
   setup () {
     const video = ref('https://vod.jiankao.wang/7c01465c94e449eeb2c795909d6b5eca/84b66563011d4411b801161ac54cd95a-6a3736091d286b946486bc6e0da0fdc7-sd.mp4')
     const axminePlayer = ref(null)
+    const action = ref('')
     const banners = reactive([
       {
         src: '/b1.jpg',
@@ -89,18 +99,42 @@ export default defineComponent({
     const open = () => {
       store.dispatch('SetStore', { account: { visible: true } })
     }
-    const toggleVideo = () => {
-      const temp = 'https://vod.jiankao.wang/366c82d7ef4247efae7da2104713ebaf/c8c454d968144b079cfe0d5c901f2b5e-74895cf715fd7e56ede8175efa4bfcc7-sd.mp4'
-      const temp2 = 'https://vod.jiankao.wang/7c01465c94e449eeb2c795909d6b5eca/84b66563011d4411b801161ac54cd95a-6a3736091d286b946486bc6e0da0fdc7-sd.mp4'
-      // const temp = video.value
-      video.value = video.value === temp ? temp2 : temp
+    const toggleVideo = (action: string) => {
       const player: Record<string, Function> = axminePlayer.value || {}
-      if (player) { player.invoke('play') }
+      switch (action) {
+        case 'toggle': {
+          const temp = 'https://vod.jiankao.wang/366c82d7ef4247efae7da2104713ebaf/c8c454d968144b079cfe0d5c901f2b5e-74895cf715fd7e56ede8175efa4bfcc7-sd.mp4'
+          const temp2 = 'https://vod.jiankao.wang/7c01465c94e449eeb2c795909d6b5eca/84b66563011d4411b801161ac54cd95a-6a3736091d286b946486bc6e0da0fdc7-sd.mp4'
+          // const temp = video.value
+          video.value = video.value === temp ? temp2 : temp
+          player && player.invoke('play')
+          break
+        }
+        case 'play':
+          player && player.invoke('play')
+          break
+        case 'pause':
+          player && player.invoke('pause')
+          break
+        case 'muted': {
+          const bool = player.invoke('muted')
+          console.log(bool)
+          player.invoke('muted', !bool)
+          break
+        }
+      }
     }
-    const onEvent = (e: unknown) => {
-      console.log(e)
+    const onEvent = (e: EventType) => {
+      // const player: Record<string, Function> = axminePlayer.value || {}
+      // console.log(player.invoke('readyState'))
+      // console.log('-=-=-=-=-=-=-=-=-=-')
+      if (e.action === 'ended') {
+        toggleVideo('toggle')
+      }
+      // action.value = player.invoke('readyState')
+      // console.log('-=-=-=-=-=-=-=-=-=-')
     }
-    return { banners, video, open, toggleVideo, axminePlayer, onEvent }
+    return { banners, video, open, action, toggleVideo, axminePlayer, onEvent }
   }
 })
 </script>
