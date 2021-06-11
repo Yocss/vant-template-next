@@ -15,6 +15,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: '新闻' }
   },
   {
+    path: '/test',
+    name: 'TextIndex',
+    component: () => import('@/views/test/index.vue'),
+    meta: { title: '测试哈' }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'ErrorIndex',
     component: () => import('@/views/error/index.vue'),

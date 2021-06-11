@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@types/video.js": "^7.3.19",
+    "@videojs/http-streaming": "^2.8.2",
     "axios": "^0.21.1",
     "core-js": "^3.13.1",
+    "m3u8-parser": "^4.7.0",
     "register-service-worker": "^1.7.1",
     "vant": "^3.0.17",
     "video.js": "^7.12.3",

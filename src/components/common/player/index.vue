@@ -1,5 +1,5 @@
 <template>
-  <div
+  <video-js
     id="axmine-player"
     :class="{ 'is-audio': audio, 'hide-controll-bar': hideControllBar }"
     class="axmine-player"
@@ -8,10 +8,10 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import 'video.js/dist/video-js.min.css'
-import 'videojs-contrib-hls'
 import videojs, { VideoJsPlayer, VideoJsPlayerOptions } from 'video.js'
+// import '@videojs/http-streaming'
+// import 'videojs-contrib-hls/dist/videojs-contrib-hls.js'
 import zh from './zh-cn'
-import { isNumeric } from 'vant/lib/utils'
 export default defineComponent({
   name: 'AxminePlayer',
   props: {
@@ -28,7 +28,7 @@ export default defineComponent({
     // 是否显示控制栏
     hideControll: {
       type: Boolean,
-      default: true
+      default: false
     },
     option: {
       type: Object,
@@ -96,20 +96,12 @@ export default defineComponent({
       // player.paused()
       switch (action) {
         case 'togglePlay': {
-          player.ready(() => {
-            if (player.paused()) {
-              if (!hideControllBar.value) {
-                invoke('play')
-              } else {
-                !player.hasClass('vjs-has-started') && invoke('play')
-              }
-            } else if (timeRanges.length > 0) {
-              if (!hideControllBar.value && player.hasClass('vjs-playing')) {
-                // 一般情况下，单击播放页面是为了显示控制栏，So active层激活时才可以执行暂停
-                player.hasClass('vjs-user-active') && invoke('pause')
-              }
-            }
-          })
+          if (player.paused()) {
+            invoke('play')
+          } else {
+            const bool = player.hasClass('vjs-playing') && player.hasClass('vjs-user-active')
+            bool && invoke('pause')
+          }
           break
         }
         case 'play': {
@@ -131,7 +123,7 @@ export default defineComponent({
           player.ready(() => { player.pause() })
           break
         case 'playbackRate':
-          if (isNumeric(arg as (string | number))) {
+          if (arg) {
             player.playbackRate(arg as number)
           } else {
             return player.playbackRate()
@@ -168,7 +160,7 @@ export default defineComponent({
     const createPlayer = () => {
       clearTimeout(timer.value)
       // 如果没有播放地址，则不创建播放器
-      if (!src.value) { return false }
+      // if (!src.value) { return false }
       // 1. 创建 video 标签
       // const className = 'axmine-player-box video-js vjs-big-play-centered'
       const className = 'axmine-player-box video-js'
@@ -188,11 +180,27 @@ export default defineComponent({
         responsive: true,
         language: 'zh-CN',
         playbackRates: [], // play speed
+        notSupportedMessage: '不受支持的视频格式',
         aspectRatio: '16:9'
+        // html5: {
+        //   vhs: { withCredentials: false },
+        //   hls: { withCredentials: false }
+        // }
       }, {
-        sources: src.value,
+        // sources: src.value,
+        sources: [{
+          src: src.value,
+          type: 'application/x-mpegURL'
+        }],
+        // sources: [
+        //   {
+        //     src: poster.value,
+        //   }
+        // ],
         poster: poster.value
       }, prop.option as VideoJsPlayerOptions)
+      // const a: VideoJsPlayerOptions = {
+      // }
 
       // 3. 创建播放器
       if (ref) {

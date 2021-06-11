@@ -1,29 +1,31 @@
-# vant3 + vue3 + ts
+# vant3 + vue3 + ts开发模板
+## 基于vue3的一款自用的快速开发模板，已经集成了 axios, 登录组件，轮播组件，以及视频播放器组件。
+<br>
 
-## Project setup
-```
-npm install
-```
+### 项目的开发及构建
+```javascript
+// 1. 开发：怎么让项目跑起来
+npm install && npm run dev
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
+// 2. 构建：就是打包啦，生产环境下用的。
 npm run build
 ```
+<br>
 
-### Run your unit tests
-```
-npm run test:unit
-```
+### 配置说明
+- 站点 (有空来写说明)
+- store (有空来写说明)
+<br>
 
-### Lints and fixes files
-```
-npm run lint
-```
+### 组件及内置方法说明
+- 视频播放器 (有空来写说明)
+- 轮播组件 (有空来写说明)
+- 登录组件 (有空来写说明)
+- axios (有空来写说明)
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+<br>
+
+### 开发约定
+没空，有空来填此坑
+- 路由（完全没空，自己去看路由，已有示例写法）
+- 目录（个人习惯而已）

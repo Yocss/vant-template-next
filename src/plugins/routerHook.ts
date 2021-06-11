@@ -21,15 +21,16 @@ function hook () {
   router.beforeResolve((to, from, next) => {
     // console.log(to)
     // console.log(from)
-    if (!from.name && to.path !== '/') {
-      next({
-        name: 'HomeIndex',
-        replace: true,
-        params: { redirect: to.fullPath }
-      })
-    } else {
-      next()
-    }
+    next()
+    // if (!from.name && to.path !== '/') {
+    //   next({
+    //     name: 'HomeIndex',
+    //     replace: true,
+    //     params: { redirect: to.fullPath }
+    //   })
+    // } else {
+    //   next()
+    // }
   })
 
   router.afterEach((to, from) => {
