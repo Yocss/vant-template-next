@@ -23,6 +23,18 @@
       background-size: 4em 4em
       background-position: center center
       background-repeat: no-repeat
+    &.vjs-error.vjs-user-active
+      .axmine-player-controll
+        display: none
+    &.vjs-error .vjs-error-display
+      &::before
+        display: none
+      .vjs-modal-dialog-content
+        padding 0 130px
+        font-size 1.5em
+        display: flex
+        justify-content: center
+        align-items: center
     &.vjs-playing.vjs-user-active
       .axmine-player-controll
         opacity .5

@@ -1,5 +1,5 @@
 <template>
-  <video-js
+  <div
     id="axmine-player"
     :class="{ 'is-audio': audio, 'hide-controll-bar': hideControllBar }"
     class="axmine-player"
