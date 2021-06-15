@@ -9,8 +9,6 @@
 import { computed, defineComponent, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import 'video.js/dist/video-js.min.css'
 import videojs, { VideoJsPlayer, VideoJsPlayerOptions } from 'video.js'
-// import '@videojs/http-streaming'
-// import 'videojs-contrib-hls/dist/videojs-contrib-hls.js'
 import zh from './zh-cn'
 export default defineComponent({
   name: 'AxminePlayer',
@@ -41,12 +39,16 @@ export default defineComponent({
     const tag = reactive({ div: {} as Element })
     const hideControllBar = computed(() => { return prop.hideControll })
     const data = reactive({ player: {} as VideoJsPlayer })
+    const srcInvoke = ref('')
     const src = computed(() => { return prop.src || prop.option.sources })
     const poster = computed(() => { return prop.poster })
     const events = ref([
       'loadstart',
       'loadedmetadata',
+      'loadeddata',
       // 'canplay',
+      'stalled',
+      'emptied',
       'firstplay',
       'playing',
       'play',
@@ -58,7 +60,9 @@ export default defineComponent({
       'progress',
       'ended',
       'fullscreenchange',
-      'mediachange',
+      'useractive',
+      'userinactive',
+      'volumechange',
       'error'
     ])
     const doEmit = (origin: Record<string, unknown>) => {
@@ -82,7 +86,6 @@ export default defineComponent({
           audio.value = (data.player.currentType()).split('/')[0] === 'audio'
         }
         data.player.on(event, playEvent)
-        // data.player.on(undefined, undefined, playEvent)
       })
     }
     const removeEvent = () => {
@@ -110,10 +113,19 @@ export default defineComponent({
             player.play()
           } else {
             player.ready(() => {
-              player.load()
-              player.on('loadedmetadata', () => {
-                player.play()
-              })
+              // console.log('==')
+              // console.log(player.currentType())
+              // console.log(player.canPlayType(player.currentType()))
+              // console.log('==')
+              // player.load()
+              // player.readyState() > 0 && player.play()
+              player.play()
+              // player.on('loadstart', () => {
+              //   player.play()
+              // })
+              // player.on('loadedmetadata', () => {
+              //   player.play()
+              // })
             })
           }
           // axminePlayerControll.value = false
@@ -134,14 +146,21 @@ export default defineComponent({
             player.ready(() => { player.muted(arg) })
           } else {
             return player.muted()
-            // player.ready(() => { return player.muted() })
           }
           break
         case 'currentTime':
           player.ready(() => { player.currentTime(arg as number) })
           break
         case 'src':
-          player.ready(() => { player.src(arg as string) })
+          srcInvoke.value = arg as string
+          if (arg) {
+            srcInvoke.value = arg as string
+          } else {
+            return player.src()
+          }
+          break
+        case 'load':
+          player.ready(() => player.load())
           break
         case 'poster':
           player.ready(() => { player.poster(arg as string) })
@@ -157,14 +176,15 @@ export default defineComponent({
       }
     }
     const togglePlay = () => { invoke('togglePlay') }
-    const createPlayer = () => {
+    const createPlayer = (option: Record<string, unknown> = { autoplay: false, sources: src.value }) => {
       clearTimeout(timer.value)
       // 如果没有播放地址，则不创建播放器
-      // if (!src.value) { return false }
       // 1. 创建 video 标签
       // const className = 'axmine-player-box video-js vjs-big-play-centered'
       const className = 'axmine-player-box video-js'
       const video = videojs.dom.createEl('video', {}, { class: className })
+      // const source = videojs.dom.createEl('source', { src: option.sources, type: 'application/x-mpegURL' })
+      // video.appendChild(source)
       const pNode = document.getElementById('axmine-player')
       const ref = pNode?.appendChild(video)
 
@@ -173,7 +193,7 @@ export default defineComponent({
         controlBar: {},
         playsinline: videojs.browser.IS_IOS,
         webkitPlaysinline: videojs.browser.IS_IOS,
-        autoplay: false,
+        // autoplay: bool,
         preload: 'auto',
         controls: true,
         fluid: true,
@@ -181,26 +201,13 @@ export default defineComponent({
         language: 'zh-CN',
         playbackRates: [], // play speed
         notSupportedMessage: '不受支持的视频格式',
+        html5: { vhs: { withCredentials: false, overrideNative: true } },
         aspectRatio: '16:9'
-        // html5: {
-        //   vhs: { withCredentials: false },
-        //   hls: { withCredentials: false }
-        // }
       }, {
-        // sources: src.value,
-        sources: [{
-          src: src.value,
-          type: 'application/x-mpegURL'
-        }],
-        // sources: [
-        //   {
-        //     src: poster.value,
-        //   }
-        // ],
+        sources: option.sources,
         poster: poster.value
-      }, prop.option as VideoJsPlayerOptions)
-      // const a: VideoJsPlayerOptions = {
-      // }
+      }, prop.option as VideoJsPlayerOptions, option)
+      // const a: VideoJsPlayerOptions = {}
 
       // 3. 创建播放器
       if (ref) {
@@ -209,7 +216,7 @@ export default defineComponent({
         data.player = videojs(ref, options, function onPlayerReady () {
           // 开始监听事件
           addEvent()
-          // 加入自定义的控制器
+          // 加入自定义的 mask 控制块(点击出现播放暂停按制按钮)
           tag.div = videojs.dom.createEl('div', {}, { class: 'axmine-player-controll' })
           data.player.$('video').after(tag.div)
           tag.div.addEventListener('click', togglePlay)
@@ -229,14 +236,16 @@ export default defineComponent({
         data.player = {} as VideoJsPlayer
       }
     })
-    // 一旦监听到播放地址改变，则重启播放器
-    watch(src, (v: string) => {
+    const doSwitch = (sources: string) => {
       if (data.player.controlBar) {
-        invoke('src', v)
-      } else {
-        createPlayer()
+        data.player.dispose()
+        data.player = {} as VideoJsPlayer
       }
-    })
+      createPlayer({ autoplay: true, sources })
+    }
+    // 一旦监听到播放地址改变，则重启播放器
+    watch(src, (v) => { doSwitch(v) })
+    watch(srcInvoke, (v) => { doSwitch(v) })
     return { audio, hideControllBar, invoke }
   }
 })
