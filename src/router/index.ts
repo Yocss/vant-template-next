@@ -18,7 +18,13 @@ const routes: Array<RouteRecordRaw> = [
     path: '/test',
     name: 'TextIndex',
     component: () => import('@/views/test/index.vue'),
-    meta: { title: '测试哈' }
+    meta: { title: '测试页' }
+  },
+  {
+    path: '/test/play',
+    name: 'TextPlay',
+    component: () => import('@/views/test/play.vue'),
+    meta: { title: '播放器测试' }
   },
   {
     path: '/:pathMatch(.*)*',
