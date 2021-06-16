@@ -1,5 +1,8 @@
+
+$enterSec = 0.35s
+$leaveSec = 0.4s
 .fade-enter-active, .fade-leave-active
-  transition opacity .35s
+  transition opacity $leaveSec
 .fade-enter, .fade-leave-to
   opacity 0
 @keyframes yo-rotate
@@ -7,7 +10,6 @@
     transform: rotate(0deg)
   to
     transform: rotate(360deg)
-$sec = 0.3s
 $blur = 5px
 .go-enter-active
 .go-leave-active
@@ -15,31 +17,43 @@ $blur = 5px
 .back-enter-active
 .goto-enter-active
 .goto-leave-active
-  position absolute
+  position absolute !important
   top 0
   width 100%
   height 100%
   overflow hidden
   background-color #fff
 .go-enter-active
-  animation slideGo $sec ease
+  animation slideGo $enterSec ease
   z-index 2
 .go-leave-active
-  animation slideGoOpacity $sec ease
+  animation slideGoOpacity $leaveSec ease
   z-index 1
+  &::before
+    content ' '
+    position: absolute
+    left 0
+    top 0
+    bottom 0
+    right 0
+    display: block
+    background-color rgba(#000, .1)
+    backdrop-filter: blur(3px)
+    -webkit-backdrop-filter: blur(3px)
+    z-index 1000
 .back-enter-active
-  animation slideBackOpacity $sec ease
+  animation slideBackOpacity $enterSec ease
   z-index 1
 .back-leave-active
-  animation slideBack $sec ease
+  animation slideBack $leaveSec ease
   z-index 2
 .goto-enter-active
   right 0
-  animation goFade $sec ease
+  animation goFade $enterSec ease
   z-index 1
 .goto-leave-active
   z-index 2
-  animation goFadeOpacity $sec ease
+  animation goFadeOpacity $leaveSec ease
 @keyframes goFade
   from
     opacity 0
