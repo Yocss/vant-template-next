@@ -1,6 +1,8 @@
 <template>
-  <div
-    ref="refRoot"
+  <base-page
+    :head="false"
+    :loading="loading"
+    loadingText="页面加载中"
     class="home-index"
   >
     <!-- 轮播图 -->
@@ -10,27 +12,18 @@
       </div>
     </div>
     <!-- /轮播图 -->
-
-    <router-link to="/test">去Test页</router-link>
-
-    <!-- 登录框 -->
-    <div @click="open">打开登录框</div>
-    <!-- /登录框 -->
-  </div>
+  </base-page>
 </template>
 <script lang="ts">
-import { defineComponent, reactive } from 'vue'
-import { useStore } from '@/store'
+import { defineComponent, onMounted, reactive, ref } from 'vue'
 import ComBanner from '@/components/common/banner/index.vue'
-// import { useRoute, useRouter } from 'vue-router'
-// import axios from '@/plugins/http'
 export default defineComponent({
   name: 'HomeIndex',
   components: {
     ComBanner
-    // ComAccount
   },
   setup () {
+    const loading = ref(true)
     const banners = reactive([
       {
         src: '/b1.jpg',
@@ -43,35 +36,13 @@ export default defineComponent({
         href: '/about'
       }
     ])
-    // const router = useRouter()
-    // const route = useRoute()
-    // const redirect = route.params.redirect || ''
-    // if (redirect) {
-    //   setTimeout(() => {
-    //     typeof redirect === 'string' && router.push(redirect)
-    //   }, 2000)
-    // }
-    // async function getData () {
-    //   const query = { region: 3600, device: 'mb', profession: 235, version: 0 }
-    //   const data = await axios.post('v3/news/news_index', query)
-    //   console.log(data)
-    // }
-    // onBeforeMount(() => {
-    //   const router = useRouter()
-    //   const route = useRoute()
-    //   const redirect = route.params.redirect || ''
-    //   if (redirect) {
-    //     typeof redirect === 'string' && router.push(redirect)
-    //   }
-    // })
-    // onMounted(async () => {
-    //   await getData()
-    // })
-    const store = useStore()
-    const open = () => {
-      store.dispatch('SetStore', { account: { visible: true } })
-    }
-    return { banners, open }
+    onMounted(() => {
+      const t = setTimeout(() => {
+        loading.value = false
+        clearTimeout(t)
+      }, 300)
+    })
+    return { loading, banners, open }
   }
 })
 </script>
