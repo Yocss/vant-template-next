@@ -6,19 +6,19 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'HomeIndex',
     component: () => import('@/views/home/index.vue'),
-    meta: { title: '首页' }
+    meta: { title: '首页', layout: 'home' }
   },
   {
     path: '/news',
     name: 'NewsIndex',
     component: () => import('@/views/news/index.vue'),
-    meta: { title: '新闻' }
+    meta: { title: '新闻', layout: 'home' }
   },
   {
     path: '/test',
     name: 'TextIndex',
     component: () => import('@/views/test/index.vue'),
-    meta: { title: '测试页' }
+    meta: { title: '测试页', layout: 'home' }
   },
   {
     path: '/test/play',
