@@ -1,9 +1,15 @@
 <template>
-  <div class="base-page">
+  <div
+    :class="{'has-head': head}"
+    class="base-page"
+  >
     <slot name="head">
-      <base-page-hd />
+      <base-page-hd v-if="head" />
     </slot>
-    <div class="base-page-bd better-scroll">
+    <div
+      v-if="!loading"
+      class="base-page-bd better-scroll"
+    >
       <slot />
     </div>
     <div
@@ -15,7 +21,7 @@
         size="36px"
         vertical
       >
-        拼命加载中
+        {{ loadingText }}
       </van-loading>
     </div>
   </div>
@@ -28,9 +34,17 @@ import { Loading } from 'vant'
 export default defineComponent({
   name: 'BasePage',
   props: {
-    loading: {
+    head: {
       type: Boolean,
       default: true
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    loadingText: {
+      type: String,
+      default: '拼命加载中'
     }
   },
   components: {
@@ -47,10 +61,14 @@ $hd = $font * 3
   position relative
   width 100%
   height 100%
-  padding-top $hd
+  padding-top 0
   overflow hidden
   background-color #fff
-  box-shadow 0 0 5px 0 rgba(#000, .1)
+  // box-shadow 0 0 5px 0 rgba(#000, .1)
+  &.has-head
+    padding-top $hd
+    .base-page-hd
+      display flex
   &-loading
     position absolute
     left 0
@@ -63,6 +81,7 @@ $hd = $font * 3
   &-bd
     width 100%
   &-hd
+    display none
     position absolute
     left 0
     top 0
