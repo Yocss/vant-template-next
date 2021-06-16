@@ -32,7 +32,7 @@ export default defineComponent({
   width 100%
   height 100%
   a
-  img
+  img[lazy=loaded]
     width 100%
     height 100%
   img[lazy=loading]
