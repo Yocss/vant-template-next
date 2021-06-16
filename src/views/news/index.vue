@@ -1,6 +1,7 @@
 <template>
-  <div
-    ref="refRoot"
+  <base-page
+    :head="false"
+    :loading="false"
     class="news"
   >
     News
@@ -11,7 +12,7 @@
         @click="open"
       >打开</a>
     </div>
-  </div>
+  </base-page>
 </template>
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
